@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 
 const STORAGE_KEY = 'expenseTrackerTransactions';
+const DEFAULT_PRODUCTION_API_BASE_URL = 'https://two026-04-13money.onrender.com';
+const API_BASE_URL = resolveApiBaseUrl();
 
 const categories = {
   income: ['월급', '부업', '용돈', '이자', '기타 수입'],
@@ -217,7 +219,7 @@ function App() {
     setIsGeneratingAdvice(true);
 
     try {
-      const response = await fetch('/api/investment-advice', {
+      const response = await fetch(buildApiUrl('/api/investment-advice'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -652,6 +654,24 @@ function LabeledField({ label, children }) {
       {children}
     </label>
   );
+}
+
+function resolveApiBaseUrl() {
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+
+  if (configuredBaseUrl) {
+    return configuredBaseUrl.replace(/\/+$/, '');
+  }
+
+  if (import.meta.env.DEV) {
+    return '';
+  }
+
+  return DEFAULT_PRODUCTION_API_BASE_URL;
+}
+
+function buildApiUrl(path) {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 }
 
 export default App;
